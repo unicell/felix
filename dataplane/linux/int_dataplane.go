@@ -475,7 +475,7 @@ func (d *InternalDataplane) doStaticDataplaneConfig() {
 	// Endure that the default value of rp_filter is set to "strict" for newly-created
 	// interfaces.  This is required to prevent a race between starting an interface and
 	// Felix being able to configure it.
-	writeProcSys("/proc/sys/net/ipv4/conf/default/rp_filter", "1")
+	writeProcSys("/proc/sys/net/ipv4/conf/default/rp_filter", "0")
 
 	for _, t := range d.iptablesRawTables {
 		rawChains := d.ruleRenderer.StaticRawTableChains(t.IPVersion)
@@ -771,7 +771,8 @@ func (d *InternalDataplane) configureKernel() {
 
 	// Make sure the default for new interfaces is set to strict checking so that there's no
 	// race when a new interface is added and felix hasn't configured it yet.
-	writeProcSys("/proc/sys/net/ipv4/conf/default/rp_filter", "1")
+	writeProcSys("/proc/sys/net/ipv4/conf/default/rp_filter", "0")
+	writeProcSys("/proc/sys/net/ipv4/conf/all/rp_filter", "0")
 }
 
 func readRPFilter() (value int64, err error) {

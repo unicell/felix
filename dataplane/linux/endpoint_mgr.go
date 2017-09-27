@@ -780,7 +780,7 @@ func (m *endpointManager) configureInterface(name string) error {
 		// Enable strict reverse-path filtering.  This prevents a workload from spoofing its
 		// IP address.  Non-privileged containers have additional anti-spoofing protection
 		// but VM workloads, for example, can easily spoof their IP.
-		err := m.writeProcSys(fmt.Sprintf("/proc/sys/net/ipv4/conf/%s/rp_filter", name), "1")
+		err := m.writeProcSys(fmt.Sprintf("/proc/sys/net/ipv4/conf/%s/rp_filter", name), "0")
 		if err != nil {
 			return err
 		}
