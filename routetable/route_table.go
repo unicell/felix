@@ -53,10 +53,21 @@ var (
 		Name: "felix_route_table_per_iface_sync_seconds",
 		Help: "Time taken to sync each interface",
 	})
+
+	_, whitelistedIpNet, _ = net.ParseCIDR("172.20.2.0/24")
 )
 
 func init() {
 	prometheus.MustRegister(listIfaceTime, perIfaceSyncTime)
+}
+
+func intersect(n1, n2 *net.IPNet) bool {
+	for i := range n1.IP {
+		if n1.IP[i]&n1.Mask[i] != n2.IP[i]&n2.Mask[i]&n1.Mask[i] {
+			return false
+		}
+	}
+	return true
 }
 
 type Target struct {
@@ -353,6 +364,10 @@ func (r *RouteTable) syncRoutesForLink(ifaceName string) error {
 		seenCIDRs.Add(dest)
 		if expectedCIDRs.Contains(dest) {
 			logCxt.Debug("Syncing routes: Found expected route.")
+			continue
+		}
+		if intersect(whitelistedIpNet, route.Dst) {
+			logCxt.Debug("Syncing routes: Found white listed route.")
 			continue
 		}
 		if inGracePeriod {
